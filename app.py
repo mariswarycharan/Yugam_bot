@@ -83,7 +83,7 @@ if not os.path.exists(PERSIST_DIR):
 else:
     pass
 
-query_engine = index.as_query_engine(streamimg=True)
+query_engine = index.as_query_engine()
 
 
 # Define Flask routes
@@ -98,9 +98,6 @@ def index_app():
         print("input ==> ",question_user)
 
         response = query_engine.query(question_user)
-
-        for token in response.response_gen:
-            print(token, end="")
 
         return response.response
     else:
