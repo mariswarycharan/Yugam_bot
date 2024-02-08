@@ -6,6 +6,7 @@ from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from llama_index.embeddings import LangchainEmbedding
 from flask import Flask
 from flask import request
+import json
 
 app = Flask(__name__)
 port = 5000
@@ -102,6 +103,13 @@ def index_app():
         return response.response
     else:
         return 'Error'
+
+@app.route("/health" , methods=['GET'])
+def health():
+    if request.method == "GET":
+        return json.dumps({'status': 'healthy'})
+    else:
+        return json.dumps({'status': 'unhealthy'})
 
 if __name__ == '__main__':
     app.run()
