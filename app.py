@@ -1,9 +1,9 @@
 import os
-from llama_index import VectorStoreIndex,SimpleDirectoryReader,ServiceContext
-from llama_index.llms import HuggingFaceLLM
-from llama_index.prompts.prompts import SimpleInputPrompt
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
-from llama_index.embeddings import LangchainEmbedding
+from langchain_together import Together
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import SentenceTransformerEmbeddings
 from flask import Flask
 from flask import request
 import json
@@ -18,73 +18,58 @@ port = 5000
 
 # ... Update inbound traffic via APIs to use the public-facing ngrok URL
 
-documents=SimpleDirectoryReader("data").load_data()
+def qa_chain():
 
-system_prompt="""
-your name is Yuva
-You need to assist the users for yugam  and recommend the best events and workshops according to their interest and behaviour through the conversational
-You are a event recommender bot and your job is to recommend best event for me by seeing my interest and field of study
-but also you want to ack like general conversation chatbot
-read this below content question are based on this
-Yugam, the Techno-Cultural-Sports Fest of Kumaraguru Institutions, is striding into its 11th edition and features a variety of technical, cultural, and literary competitions, as well as pro shows, hackathons, conclaves, presentations, and socially responsible activities.
-YOU ARE MADE BY IQUBERZ (LOVE @ AI TEAM) iQube ==> INNOVATE INCUBATE INCORPORAT
+    prompt_template = """
+    As a helpful assistant, I am excited to assist you with Yugam event recommendations and general conversation. I am programmed to suggest the best events and workshops tailored to your interests and field of study. I was developed by the iQuberz team (@ AI Team) at iQube, where we focus on INNOVATE, INCUBATE, and INCORPORATE.
+    And i want to act like a general conversation chatbot and assistance related to Yugam
+    
+    Context : Yugam, the Techno-Cultural-Sports Fest of Kumaraguru Institutions, is gearing up for its 11th edition! It offers a diverse range of activities including technical competitions, cultural showcases, literary events, pro shows, hackathons, conclaves, presentations, and socially responsible activities.
 
-MUST WANT TO FOLLOW:
-IF ABOVE CONTENT IS YOU ALREADY READ AND SEEN AND DO READ AGAIN THAT ABOVE CONTENT AND JECT KEEP IT IN HISTORY AND NOW ANSWER SHOULD BE BASED ON CONVERSATION HISTORY. AND ANSWER TO CURRENT QUESTION I HAVE ASKED
-if i asked question is related to recommending or suggesting or showing the events and  your response should cantain TITLE OR NAME OF EVENT ONLY and your repsonse should be like to manipulate the users to attend the events and induce,with enthusiasm the user to attend events  , Do not generate any extra other content
-you always want to speak about the above content only , Do not generate any extra other content which is not in above content
-if i asked question is normal conversation chat question and i want to answer to that question only and do not generate extra content
-add some emoji in answer
-MOST ALL OF THE TIME RESONSE SHOULD BE:(if user do not like)
-you should force the user to attend events again and again if user is interested or not interested in any events
+    Please remember the following guidelines:
+    - If you ask about event recommendations, I will provide the title or name of the event only. I will make the events appealing and induce enthusiasm in you to attend.
+    - I will only discuss the events and content related to Yugam. I will not provide any information about other events or generate any extra content not in the provided context.
+    - If you ask normal conversation chat questions, I will answer them directly without adding extra content.
+    - I will use emojis to make conversations more engaging.
+    - I will encourage you to attend events even if you are not initially interested.
 
+    Context: {context}
+    Question: {question}
+    
+    Answer: 
+    """
 
-DO NOT INCLUDE THIS BELOW THINGS IN OUTPUT :
-do not generate code
-do not tell about any others events which is not in yugam and speak only given events
-"""
-## Default format supportable by LLama2
-query_wrapper_prompt=SimpleInputPrompt("<|USER|>{query_str}<|ASSISTANT|>")
+    prompt = PromptTemplate(template=prompt_template, input_variables=["query","instruction"])
+    
+    embeddings = SentenceTransformerEmbeddings(model_name="llmware/industry-bert-insurance-v0.1")
 
-from transformers import  AutoConfig
+    load_vector_store = Chroma(persist_directory="stores/yugam_cosine", embedding_function=embeddings)
 
-config = AutoConfig.from_pretrained("TheBloke/Llama-2-13B-chat-GPTQ")
-config.quantization_config["use_exllama"] = False
-# config.quantization_config["disable_exllama"] = True
-config.quantization_config["exllama_config"] = {"version":2}
+    retriever = load_vector_store.as_retriever()
 
-llm = HuggingFaceLLM(
-    context_window=4096,
-    max_new_tokens=1000,
-    generate_kwargs={"temperature": 0.0, "do_sample": False},
-    system_prompt=system_prompt,
-    query_wrapper_prompt=query_wrapper_prompt,
-    tokenizer_name="TheBloke/Llama-2-13B-chat-GPTQ",
-    model_name="TheBloke/Llama-2-13B-chat-GPTQ",
-    device_map="auto",
-    # uncomment this if using CUDA to reduce memory usage
-    model_kwargs={'config' : config}
+    llm = Together(
+    model="togethercomputer/llama-2-70b-chat",
+    temperature=0.7,
+    max_tokens=300,
+    top_k=1,
+
+    together_api_key="40763e1166656125a452ff661e6218ac3d709fd64b458f17f94984acc8e748dc"
 )
 
-
-embed_model=LangchainEmbedding(
-    HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2"))
-
-service_context=ServiceContext.from_defaults(
-    chunk_size=1024,
+    chain_type_kwargs = {"prompt": prompt}
+    
+    qa = RetrievalQA.from_chain_type(
     llm=llm,
-    embed_model=embed_model
-)
+    chain_type="stuff",
+    retriever=retriever,
+    return_source_documents=True,
+    chain_type_kwargs=chain_type_kwargs,
+    verbose=True,
+    )
 
-index=VectorStoreIndex.from_documents(documents,service_context=service_context)
+    return qa
 
-PERSIST_DIR = "./storage"
-if not os.path.exists(PERSIST_DIR):
-    index.storage_context.persist(persist_dir=PERSIST_DIR)
-else:
-    pass
-
-query_engine = index.as_query_engine()
+qa = qa_chain()
 
 
 # Define Flask routes
@@ -98,11 +83,17 @@ def index_app():
 
         print("input ==> ",question_user)
 
-        response = query_engine.query(question_user)
+        try:
+            response = qa(question_user)
+            print(response['result'])
+        except Exception as e:
+            return f'Error in generating response: {e}'
+        
+        
 
-        return response.response
+        return response['result']
     else:
-        return 'Error'
+        return 'Error in api resquest' 
 
 @app.route("/health" , methods=['GET'])
 def health():
