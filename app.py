@@ -11,10 +11,7 @@ import json
 app = Flask(__name__)
 port = 5000
 
-# pip install pypdf
-# >> pip install -q transformers einops accelerate langchain bitsandbytes
-# >> pip install install sentence_transformers
-# >> pip install llama_index
+
 
 # ... Update inbound traffic via APIs to use the public-facing ngrok URL
 
