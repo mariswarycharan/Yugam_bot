@@ -49,7 +49,7 @@ def qa_chain():
     llm = Together(
     model="togethercomputer/llama-2-70b-chat",
     temperature=0.1,
-    max_tokens=200,
+    max_tokens=500,
     top_k=1,
     together_api_key="40763e1166656125a452ff661e6218ac3d709fd64b458f17f94984acc8e748dc"
 )
