@@ -5,3 +5,5 @@ faiss_db_app.py
 faiss_test.py
 chromo_db_app.py
 test.py
+source_data/
+practice.ipynb
