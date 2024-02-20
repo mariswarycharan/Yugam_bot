@@ -2,7 +2,6 @@ import time
 from flask_cors import CORS
 from langchain_together import Together
 from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
 from langchain.chains.question_answering import load_qa_chain
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import SentenceTransformerEmbeddings,HuggingFaceBgeEmbeddings
@@ -108,7 +107,7 @@ def index_app():
             return f'Error in generating response: {e}'
         
     else:
-        return 'Error in api resquest' 
+        return 'Error in api request' 
 
 @app.route("/health" , methods=['GET'])
 def health():
