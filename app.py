@@ -13,8 +13,7 @@ app = Flask(__name__)
 port = 5000
 CORS(app)
 
-# ... Update inbound traffic via APIs to use the public-facing ngrok URL
-# - You will make the events appealing and induce enthusiasm in you to attend.
+
 def get_conversational_chain():
 
     prompt_template = """<<SYS>>
@@ -101,7 +100,7 @@ def index_app():
                         
             
             response = response["output_text"]
-            print('*'*100)
+
             print(response)
             return response
         
