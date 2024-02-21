@@ -4,9 +4,6 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.document_loaders.text import TextLoader
 from langchain_community.vectorstores import FAISS
 
-embeddings = HuggingFaceBgeEmbeddings(
-        model_name="BAAI/bge-base-en-v1.5", encode_kwargs={"normalize_embeddings": True}
-    )
 
 text = ''
 loader = DirectoryLoader('data/', glob="**/*.txt", show_progress=True, loader_cls=TextLoader,loader_kwargs={'encoding': 'utf-8'})
@@ -21,11 +18,10 @@ chunks = text_splitter.split_text(text)
 print('No of documents (chunks) ==> ',len(chunks))
 
 embeddings = HuggingFaceBgeEmbeddings(
-        model_name="BAAI/bge-base-en-v1.5", encode_kwargs={"normalize_embeddings": True}
-    )
-
+model_name="BAAI/bge-base-en-v1.5", encode_kwargs={"normalize_embeddings": True},)
+   
 vector_store = FAISS.from_texts(chunks, embedding=embeddings)
 print('vector_store started.....')
-vector_store.save_local("stores/faiss_db_2024")
+vector_store.save_local("stores/faiss_db_2024_new")
 print('vector_store ended.....')
 
