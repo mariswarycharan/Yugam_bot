@@ -88,15 +88,7 @@ def index_app():
         try:
             start_time = time.time()
 
-            docs = new_db.similarity_search_with_score(question_user)
-            print("all documents are ---------------")
-            print(docs)
-            print('*'*100)
-            print([ i[1] for i in docs])
-            print('*'*100)
-            docs = [ i[0] for i in docs if i[1] < 1.0 ]
-            print("filtered documents are -----------------")
-            print(docs)
+            docs = new_db.similarity_search(question_user)
             response = chain(
             {"input_documents":docs, "question": question_user}
             , return_only_outputs=True,
