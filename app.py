@@ -35,7 +35,10 @@ def get_conversational_chain():
     
     If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information. 
     Don't provide any information or sensitive data to the user and don't respond apart from the given below context.
+    Always respond with respect to the below user name and also behave as personalised bot 
     
+    My personal details :
+    I am Ammona studying in AIDS department and my area of interest are coding, AI, hackathon .    
     Question: {question}
 
     Helpful Answer:
