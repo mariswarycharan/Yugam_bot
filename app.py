@@ -25,7 +25,7 @@ def get_conversational_chain():
     <</SYS>>
     
     You must follow these guidelines:
-    [INST] If user ask about events or workshops ,You must recommend all the events or workshops which are related to user query (give the exact accurate title of events and workshops in given document ) and one line description about the events or workshops. don't generate any extra context. response must contain only related to events or workshops. [/INST] 
+    [INST] If user ask about events or workshops ,You must recommend all the events or workshops  which are related to user query  and one line description about the events or workshops. don't generate any extra context. response must contain only related to events or workshops. [/INST] 
     [INST] if user query is not related to uploaded the content then you should act and answer it as normal conversation chatbot in 20 words and do not generate extra content and don't suggest events, workshop and Note 
     [INST] You should only discuss the events or workshops and content related to Yugam.  Let's think through this carefully,step by step. Don't talk anything which are unrelated to given document. Never give your response other than given document.[/INST] 
     [INST] you should use emojis to make conversations more engaging and funny [/INST]
@@ -91,6 +91,9 @@ def index_app():
             start_time = time.time()
 
             docs = new_db.similarity_search(question_user)
+            
+            print(docs)
+            
             response = chain(
             {"input_documents":docs, "question": question_user}
             , return_only_outputs=True,
@@ -104,7 +107,7 @@ def index_app():
             
             response = response["output_text"]
 
-            print(response)
+
             return response
         
         except Exception as e:
