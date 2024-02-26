@@ -1,6 +1,5 @@
 from celery import shared_task
 from celery.task import task
-
 from django.conf import settings
 from sentry_sdk import capture_exception
 import pandas as pd
@@ -87,6 +86,7 @@ def updateFaissDB():
             image_url_list.append("https://yugam.in/media/" +  events.loc[i]['image'])
             events_url_list.append("https://yugam.in/e/" +  events.loc[i]['event_url'])
             events_tag_list.append(re.sub(r'["\[,\]\\]', ' ', events.loc[i]['event_tags']))
+            
         data = {'Title': titles, 'Description': descriptions , "generated_descriptions" : generated_descriptions , "catagory" : cato_list, "sub_catagory" :sub_cato_list , 
             "description_of_sub_catagory" : des_sub_cato_list ,'image_url' : image_url_list , 'events_url' : events_url_list , 'events_tags' : events_tag_list  }
 
@@ -160,6 +160,7 @@ def updateFaissDB():
             
         with open('yugamAI/ai_database/events_content_yugam.txt', 'w', encoding='utf-8') as file:
             file.write(text)
+            
         text = ''
         for i in range(len(workshops_filtered_df)):
             val = workshops_filtered_df.loc[i]
@@ -172,13 +173,16 @@ def updateFaissDB():
             text +=  "sub category is" + val['sub_catagory'] + ' and '
             text +=  "url : " + val['events_url'] + ' and '
             text +=  "workshops tags are " + val['events_tags'] + '\n'
+            
+        with open('yugamAI/ai_database/workshops_content_yugam.txt', 'w', encoding='utf-8') as file:
+            file.write(text)
         
         text = ''
         loader = DirectoryLoader('yugamAI/ai_database/', glob="**/*.txt", show_progress=True, loader_cls=TextLoader,loader_kwargs={'encoding': 'utf-8'})
         documents = loader.load()
         print(documents)
         text += documents[0].page_content + "\n\n"
-        # text += documents[1].page_content 
+        text += documents[1].page_content 
 
         text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=1, chunk_overlap=1)
         chunks = text_splitter.split_text(text)

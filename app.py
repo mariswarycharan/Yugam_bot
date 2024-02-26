@@ -1,10 +1,17 @@
 import time 
+from flask_cors import CORS
 from langchain_together import Together
 from langchain.prompts import PromptTemplate
 from langchain.chains.question_answering import load_qa_chain
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import SentenceTransformerEmbeddings,HuggingFaceBgeEmbeddings
+from flask import Flask
+from flask import request
+import json
 
+app = Flask(__name__)
+port = 5000
+CORS(app)
 
 
 def get_conversational_chain():
@@ -71,20 +78,17 @@ def user_input():
 chain,new_db = user_input()
 
 
-def index_app(question):
+# Define Flask routes
+@app.route("/", methods=['GET', 'POST'])
+def index_app():
     global chain
+    if request.args.get('question'):
 
-    try:
-        start_time = time.time()
+        question_user = request.args.get("question")
+        print("input ==> ",question_user)
 
-        docs = new_db.similarity_search(question)
-        print(docs)
-        response = chain(
-        {"input_documents":docs, "question": question}
-        , return_only_outputs=True,
-        )
-        
-        end_time = time.time()
+        try:
+            start_time = time.time()
 
             docs = new_db.similarity_search(question_user)
             
@@ -112,4 +116,12 @@ def index_app(question):
     else:
         return 'Error in api request' 
 
-index_app("what is the best event in yugam?")
+@app.route("/health" , methods=['GET'])
+def health():
+    if request.method == "GET":
+        return json.dumps({'status': 'healthy'})
+    else:
+        return json.dumps({'status': 'unhealthy'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
