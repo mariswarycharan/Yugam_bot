@@ -44,6 +44,7 @@ def updateFaissDB():
         df = pd.DataFrame(tuples_list,columns=table_columns_name)
         return df
 
+
     def generate_content(query):
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyAnIm6lpzgoIdermHNHy0BFpzxe8ySJjK0"
         data = {
@@ -62,12 +63,13 @@ def updateFaissDB():
             if content_text:
                 return content_text
             else:
-                return content_text
+                return ''
         else:
             print("Request failed with status code:", response.status_code)
             print("Response:", response.text)
+            return ''
+            
           
-    
     events_df = sql_to_dataframe('events_event')
     category_df = sql_to_dataframe('events_category')
     subcategory_df = sql_to_dataframe('events_subcategory')
@@ -86,26 +88,26 @@ def updateFaissDB():
         text_content_description = soup.get_text(separator="\n", strip=True)
         
         # events description generation function
-        try:
-            prompt_gemini = f"""
-            ANTICIPATE ATTENDEE FIELD OF STUDY AND AREA OF INTERESTS AND SKILLS AND TECHNOLOGY FOR BELOW EVENT PLANNING. UNDERSTANDING WHO IS LIKELY TO ATTEND AND WHAT DEPARTMENTS ARE INTERESTED IN WORKSHOPS ENHANCES ENGAGEMENT AND TAILORS CONTENT TO MEET DIVERSE NEEDS EFFECTIVELY.        
-            ADD THIS ALL FIELD OF STUDY AND AREA OF INTERESTS AND SKILLS AND TECHNOLOGY INDIVIDUALLY IN ANSWER
-            
-            AND ADD TO THE ANSWER WHICH AREA OF INTEREST IS PERFECTLY SUITABLE FOR THIS BELOW EVENTS ADD TOP 3. AREA OF INTEREST  ARE (mechanical, computing ,electrical ,electronics ,life science ,literature ,management, Finance ,Liberal Arts, fine Arts, media ,civil, leadership ,entrepreneurship, Sports, performing arts )  
-            ADD AREA OF INTEREST NAME ONLY
-            
-            AND ADD TO THE ANSWER WHICH DOMAIN IS PERFECTLY SUITABLE FOR THIS BELOW EVENTS ADD TOP 3. DOMAINS  ARE ( Web Development, Mobile App Development, Software Engineering, Data Science, Artificial Intelligence, Machine Learning, Cybersecurity, Cloud Computing, Game Development, Database Management, Networking  DevOps, UI/UX Design, Graphic Design, Digital Marketing, Content Writing, Business Analysis
-            Embedded Systems,Robotics,Internet of Things (IoT),Sensor,Signal,mechanical,Mechatronics)
-            ADD DOMAIN NAME ONLY
-            
-            EVENT DETAILS:
-            TITLE IS {event_loc['title']}
-            DECRIPTION IS {text_content_description}
 
-            """
-            generated_description_gemini = generate_content(prompt_gemini)
+        prompt_gemini = f"""
+        ANTICIPATE ATTENDEE FIELD OF STUDY AND AREA OF INTERESTS AND SKILLS AND TECHNOLOGY FOR BELOW EVENT PLANNING. UNDERSTANDING WHO IS LIKELY TO ATTEND AND WHAT DEPARTMENTS ARE INTERESTED IN WORKSHOPS ENHANCES ENGAGEMENT AND TAILORS CONTENT TO MEET DIVERSE NEEDS EFFECTIVELY.        
+        ADD THIS ALL FIELD OF STUDY AND AREA OF INTERESTS AND SKILLS AND TECHNOLOGY INDIVIDUALLY IN ANSWER
+        
+        AND ADD TO THE ANSWER WHICH AREA OF INTEREST IS PERFECTLY SUITABLE FOR THIS BELOW EVENTS ADD TOP 3. AREA OF INTEREST  ARE (mechanical, computing ,electrical ,electronics ,life science ,literature ,management, Finance ,Liberal Arts, fine Arts, media ,civil, leadership ,entrepreneurship, Sports, performing arts )  
+        ADD AREA OF INTEREST NAME ONLY
+        
+        AND ADD TO THE ANSWER WHICH DOMAIN IS PERFECTLY SUITABLE FOR THIS BELOW EVENTS ADD TOP 3. DOMAINS  ARE ( Web Development, Mobile App Development, Software Engineering, Data Science, Artificial Intelligence, Machine Learning, Cybersecurity, Cloud Computing, Game Development, Database Management, Networking  DevOps, UI/UX Design, Graphic Design, Digital Marketing, Content Writing, Business Analysis
+        Embedded Systems,Robotics,Internet of Things (IoT),Sensor,Signal,mechanical,Mechatronics)
+        ADD DOMAIN NAME ONLY
+        
+        EVENT DETAILS:
+        TITLE IS {event_loc['title']}
+        DECRIPTION IS {text_content_description}
+
+        """
+        generated_description_gemini = generate_content(prompt_gemini)
             
-        except:
+        if generated_description_gemini == '' :
             generated_description_gemini = re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags'])
             
         value = subcategory_df.loc[subcategory_df['id'] == event_loc["subCategory_id"]]
@@ -136,26 +138,25 @@ def updateFaissDB():
         text_content_description = soup.get_text(separator="\n", strip=True)
         
         # events description generation function
-        try:
-            prompt_gemini = f"""
-            ANTICIPATE ATTENDEE FIELD OF STUDY AND AREA OF INTERESTS AND SKILLS AND TECHNOLOGY FOR EVENT PLANNING. UNDERSTANDING WHO IS LIKELY TO ATTEND AND WHAT DEPARTMENTS ARE INTERESTED IN WORKSHOPS ENHANCES ENGAGEMENT AND TAILORS CONTENT TO MEET DIVERSE NEEDS EFFECTIVELY.        
-            ADD THIS ALL FIELD OF STUDY AND AREA OF INTERESTS AND SKILLS AND TECHNOLOGY INDIVIDUALLY IN ANSWER
-            
-            ADD ADD TO THE ANSWER WHICH AREA OF INTEREST IS PERFECTLY SUITABLE FOR THIS EVENTS ADD TOP 3 . AREA OF INTEREST  ARE (mechanical, computing ,electrical ,electronics ,life science ,literature ,management, Finance ,Liberal Arts, fine Arts, media ,civil, leadership ,entrepreneurship, Sports, performing arts )  
-            ADD AREA OF INTEREST NAME ONLY
-            
-            AND ADD TO THE ANSWER WHICH DOMAIN IS PERFECTLY SUITABLE FOR THIS BELOW WORKSHOP ADD TOP 3. DOMAINS  ARE ( Web Development, Mobile App Development, Software Engineering, Data Science, Artificial Intelligence, Machine Learning, Cybersecurity, Cloud Computing, Game Development, Database Management, Networking  DevOps, UI/UX Design, Graphic Design, Digital Marketing, Content Writing, Business Analysis
-            Embedded Systems,Robotics,Internet of Things (IoT),Sensor,Signal,mechanical,Mechatronics)
-            ADD DOMAIN NAME ONLY
+        prompt_gemini = f"""
+        ANTICIPATE ATTENDEE FIELD OF STUDY AND AREA OF INTERESTS AND SKILLS AND TECHNOLOGY FOR EVENT PLANNING. UNDERSTANDING WHO IS LIKELY TO ATTEND AND WHAT DEPARTMENTS ARE INTERESTED IN WORKSHOPS ENHANCES ENGAGEMENT AND TAILORS CONTENT TO MEET DIVERSE NEEDS EFFECTIVELY.        
+        ADD THIS ALL FIELD OF STUDY AND AREA OF INTERESTS AND SKILLS AND TECHNOLOGY INDIVIDUALLY IN ANSWER
+        
+        ADD ADD TO THE ANSWER WHICH AREA OF INTEREST IS PERFECTLY SUITABLE FOR THIS EVENTS ADD TOP 3 . AREA OF INTEREST  ARE (mechanical, computing ,electrical ,electronics ,life science ,literature ,management, Finance ,Liberal Arts, fine Arts, media ,civil, leadership ,entrepreneurship, Sports, performing arts )  
+        ADD AREA OF INTEREST NAME ONLY
+        
+        AND ADD TO THE ANSWER WHICH DOMAIN IS PERFECTLY SUITABLE FOR THIS BELOW WORKSHOP ADD TOP 3. DOMAINS  ARE ( Web Development, Mobile App Development, Software Engineering, Data Science, Artificial Intelligence, Machine Learning, Cybersecurity, Cloud Computing, Game Development, Database Management, Networking  DevOps, UI/UX Design, Graphic Design, Digital Marketing, Content Writing, Business Analysis
+        Embedded Systems,Robotics,Internet of Things (IoT),Sensor,Signal,mechanical,Mechatronics)
+        ADD DOMAIN NAME ONLY
 
-            WORKSHOP DETAILS:
-            TITLE IS {workshop_loc['title']}
-            DECRIPTION IS {text_content_description}
+        WORKSHOP DETAILS:
+        TITLE IS {workshop_loc['title']}
+        DECRIPTION IS {text_content_description}
 
-            """
-            generated_description_gemini = generate_content(prompt_gemini)
-            
-        except:
+        """
+        generated_description_gemini = generate_content(prompt_gemini)
+        
+        if generated_description_gemini == '':
             generated_description_gemini = re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags'])
             
         value = subcategory_df.loc[subcategory_df['id'] == workshop_loc["subCategory_id"]]
