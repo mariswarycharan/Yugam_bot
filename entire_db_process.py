@@ -46,7 +46,7 @@ def updateFaissDB():
 
 
     def generate_content(query):
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyAnIm6lpzgoIdermHNHy0BFpzxe8ySJjK0"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyBHNjNmTdTZOwLr0ucsiZowtLZkI2U3ztM"
         data = {
             "contents": [{
                 "parts": [{
@@ -55,18 +55,20 @@ def updateFaissDB():
             }]
         }
         headers = {"Content-Type": "application/json"}
-        response = requests.post(url, headers=headers, json=data)
-
-        if response.status_code == 200:
-            response_data = response.json()
-            content_text = response_data.get('candidates', [])[0].get('content', {}).get('parts', [])[0].get('text', None)
-            if content_text:
-                return content_text
+        try:
+            response = requests.post(url, headers=headers, json=data)
+            if response.status_code == 200:
+                response_data = response.json()
+                content_text = response_data.get('candidates', [])[0].get('content', {}).get('parts', [])[0].get('text', None)
+                if content_text:
+                    return content_text
+                else:
+                    return ''
             else:
+                print("Request failed with status code:", response.status_code)
+                print("Response:", response.text)
                 return ''
-        else:
-            print("Request failed with status code:", response.status_code)
-            print("Response:", response.text)
+        except:
             return ''
             
           
@@ -120,11 +122,15 @@ def updateFaissDB():
         full_text_events +=  "TITLE of the event is " + title_name + " and "
         full_text_events +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n','')  + "\n"
         full_text_events +=  "Anticipate attendee for " + title_name + "event have " + generated_description_gemini.replace('\n','').replace('*','')  + " and "
-        full_text_events +=  "category is " + Category + " and "
-        full_text_events +=  "sub category is " + subCategory + ' and '
-        full_text_events +=  "url : " + "https://yugam.in/e/" +  event_loc['event_url'] + ' and '
+        full_text_events +=  "CATEGORY is " + Category + " and "
+        full_text_events +=  "SUB CATEGORY is " + subCategory + ' and '
+        full_text_events +=  "URL : " + "https://yugam.in/e/" +  event_loc['event_url'] + ' and '
+        full_text_events +=  "DATE : " +  str(event_loc['startTime']) + ' and '
+        full_text_events +=  "WINNING PRICE AMOUNT FOR THIS EVENT : " +  str(event_loc['price_amount']) + ' and '
+        full_text_events +=  "ENTRY FEES OR COST FOR THIS EVENT : " +  str(event_loc['common_paymentAmount']) + ' and '
         full_text_events +=  "events tags are " + re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags']) + '\n'
         
+    
     full_text_workshops = ''
     
     for i in tqdm(range(len(workshop_df))):
@@ -169,12 +175,17 @@ def updateFaissDB():
         full_text_workshops +=  "TITLE of the workshop is " + title_name + " and "
         full_text_workshops +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n','')  + "\n"
         full_text_workshops +=  "Anticipate attendee for " + title_name + "workshop have " + generated_description_gemini.replace('\n','').replace('*','')  + " and "
-        full_text_workshops +=  "category is " + Category + " and "
-        full_text_workshops +=  "sub category is " + subCategory + ' and '
-        full_text_workshops +=  "url : " + "https://yugam.in/w/" +  workshop_loc['workshop_url'] + ' and '
+        full_text_workshops +=  "CATEGORY is " + Category + " and "
+        full_text_workshops +=  "SUB CATEGORY is " + subCategory + ' and '
+        full_text_workshops +=  "URL : " + "https://yugam.in/w/" +  workshop_loc['workshop_url'] + ' and '
+        full_text_workshops +=  "DATE : " + str(workshop_loc['startTime']) + ' and '
+        full_text_workshops +=  "ENTRY FEES OR COST FOR THIS  WORKSHOP : " + str(workshop_loc['common_paymentAmount']) + ' and '
         full_text_workshops +=  "workshops tags are " + re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags']) + '\n'
         
     all_text_content_faiss_db = full_text_events + '\n' + full_text_workshops
+    
+    with open('source_data/full_data.txt', 'w', encoding='utf-8') as file:
+        file.write(all_text_content_faiss_db)
     
     text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=1, chunk_overlap=1)
     chunks = text_splitter.split_text(all_text_content_faiss_db)
