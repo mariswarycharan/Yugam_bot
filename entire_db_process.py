@@ -1,6 +1,6 @@
 import psycopg2
 import pandas as pd
-import requests,re
+import requests,re,time
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -45,7 +45,7 @@ def updateFaissDB():
         return df
 
 
-    def generate_content(query):
+    def generate_content(query, retries=3, delay=3):
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyBHNjNmTdTZOwLr0ucsiZowtLZkI2U3ztM"
         data = {
             "contents": [{
@@ -55,6 +55,7 @@ def updateFaissDB():
             }]
         }
         headers = {"Content-Type": "application/json"}
+        
         try:
             response = requests.post(url, headers=headers, json=data)
             if response.status_code == 200:
@@ -67,10 +68,21 @@ def updateFaissDB():
             else:
                 print("Request failed with status code:", response.status_code)
                 print("Response:", response.text)
+                if retries > 0:
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                    return generate_content(query, retries - 1, delay)
+                else:
+                    return ''
+        except Exception as e:
+            print("Error occurred:", str(e))
+            if retries > 0:
+                print(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+                return generate_content(query, retries - 1, delay)
+            else:
                 return ''
-        except:
-            return ''
-            
+                
           
     events_df = sql_to_dataframe('events_event')
     category_df = sql_to_dataframe('events_category')
@@ -108,7 +120,8 @@ def updateFaissDB():
 
         """
         generated_description_gemini = generate_content(prompt_gemini)
-            
+
+        
         if generated_description_gemini == '' :
             generated_description_gemini = re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags'])
             
