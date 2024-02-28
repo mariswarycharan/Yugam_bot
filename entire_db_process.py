@@ -45,7 +45,7 @@ def updateFaissDB():
         return df
 
 
-    def generate_content(query,api_index):
+    def gemini_request(query,api_index):
         API_KEY_LIST = ['AIzaSyBHNjNmTdTZOwLr0ucsiZowtLZkI2U3ztM','AIzaSyBLbePjmaxgBIOo7I0Bh6o6Bq3FWvpO83I','AIzaSyBf1f92VARfojVOJee8KYziFDEwPg--2N4','AIzaSyDp_bPEbYnbFIXaQ99e4QKFkTawWptL7q0','AIzaSyAawExf9n-tHsDBOCYA9foKFCVggGb_6lA'
                         ,'AIzaSyD1mrEZHdZqt2bswUBKj2gBNe8wr5XVLXo','AIzaSyA21ny7hTPZCAZrQwYAoCrVqTJVbHVdBmw','AIzaSyB3ZKlIluPSdGKphLBzzC4XYuAZ55Uf9qs','AIzaSyC2zLA-jePiNqxNKx_gsBtkVtajm8PqWCM','AIzaSyDQCan0QQ7dWZpJzXPvmnQcc0vK3jAuzNQ']
         
@@ -77,9 +77,9 @@ def updateFaissDB():
                 
           
     events_df = sql_to_dataframe('events_event')
-    category_df = sql_to_dataframe('events_category')
-    subcategory_df = sql_to_dataframe('events_subcategory')
-    workshop_df = sql_to_dataframe('workshop_workshop')       
+    categories_df = sql_to_dataframe('events_category')
+    subCategories_df = sql_to_dataframe('events_subcategory')
+    workshops_df = sql_to_dataframe('workshop_workshop')       
         
     full_text_events = ''
     
@@ -111,16 +111,16 @@ def updateFaissDB():
         DECRIPTION IS {text_content_description}
 
         """
-        generated_description_gemini = generate_content(prompt_gemini,api_index=int(str(i)[-1]))
+        generated_description_gemini = gemini_request(prompt_gemini,api_index=int(str(i)[-1]))
 
         
         if generated_description_gemini == '' :
             print(generated_description_gemini)
             generated_description_gemini = re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags'])
             
-        value = subcategory_df.loc[subcategory_df['id'] == event_loc["subCategory_id"]]
+        value = subCategories_df.loc[subCategories_df['id'] == event_loc["subCategory_id"]]
         subCategory = value.iloc[0]['name']
-        value1 = category_df.loc[category_df['id'] == value.iloc[0]['category_id']]
+        value1 = categories_df.loc[categories_df['id'] == value.iloc[0]['category_id']]
         Category = value1.iloc[0]['name']
         
         
@@ -139,9 +139,9 @@ def updateFaissDB():
     
     full_text_workshops = ''
     
-    for i in tqdm(range(len(workshop_df))):
+    for i in tqdm(range(len(workshops_df))):
         
-        workshop_loc = workshop_df.loc[i]
+        workshop_loc = workshops_df.loc[i]
         html_code = workshop_loc["description"]
         
         # Parse HTML using BeautifulSoup
@@ -166,15 +166,15 @@ def updateFaissDB():
         DECRIPTION IS {text_content_description}
 
         """
-        generated_description_gemini = generate_content(prompt_gemini,api_index=int(str(i)[-1]))
+        generated_description_gemini = gemini_request(prompt_gemini,api_index=int(str(i)[-1]))
         
         if generated_description_gemini == '':
             print(generated_description_gemini)
             generated_description_gemini = re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags'])
             
-        value = subcategory_df.loc[subcategory_df['id'] == workshop_loc["subCategory_id"]]
+        value = subCategories_df.loc[subCategories_df['id'] == workshop_loc["subCategory_id"]]
         subCategory = value.iloc[0]['name']
-        value1 = category_df.loc[category_df['id'] == value.iloc[0]['category_id']]
+        value1 = categories_df.loc[categories_df['id'] == value.iloc[0]['category_id']]
         Category = value1.iloc[0]['name']
         
         
@@ -191,7 +191,7 @@ def updateFaissDB():
         
     all_text_content_faiss_db = full_text_events + '\n' + full_text_workshops
     
-    with open('source_data/full_data.txt', 'w', encoding='utf-8') as file:
+    with open('yugamAI/ai_database/eventsWorkshops.txt', 'w', encoding='utf-8') as file:
         file.write(all_text_content_faiss_db)
     
     text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=1, chunk_overlap=1)
@@ -204,7 +204,7 @@ def updateFaissDB():
     
     print('vector_store started.....')
     vector_store = FAISS.from_texts(chunks, embedding=embeddings)
-    vector_store.save_local("source_data/faiss_db_2024_new")
+    vector_store.save_local("yugamAI/ai_database/faiss")
     print('vector_store ended.....')
 
     

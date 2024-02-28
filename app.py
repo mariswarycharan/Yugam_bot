@@ -74,7 +74,7 @@ def user_input():
     embeddings = HuggingFaceBgeEmbeddings(
     model_name="BAAI/bge-base-en-v1.5", encode_kwargs={"normalize_embeddings": True},)
     # query_instruction = """Generate a representation for this applicant's profile that can be used to match them with relevant events and workshops based on their interests and behavior. Additionally, you must also act like a general conversation chatbot and respond to queries not related to the uploaded content in 20 words, without suggesting events, workshops, or notes.""")
-    new_db = FAISS.load_local("stores/faiss_db_2024", embeddings)
+    new_db = FAISS.load_local("yugamAI/ai_database/faiss", embeddings)
     chain = get_conversational_chain()
     return chain,new_db
 
