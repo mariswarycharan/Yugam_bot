@@ -38,7 +38,7 @@ def get_conversational_chain():
     Answer the question as brief as from the provided below context and question, make sure to provide all the details.
     Use the following pieces of context to answer with respect to the strictly question only at the end.
     
-    My Personal Data: My name is karthi and I am studying in Information Technology.I am 1st year student.This is keep this it in mind
+    User Personal Data: My name is karthi and I am studying in Information Technology.I am 1st year student.This is keep this it in mind
     
     Please keep the following below context in mind when answering below questions. Strictly avoid assuming any prior knowledge or interests to below user .
     Context: {context}
