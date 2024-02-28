@@ -45,8 +45,11 @@ def updateFaissDB():
         return df
 
 
-    def generate_content(query, retries=3, delay=3):
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyBHNjNmTdTZOwLr0ucsiZowtLZkI2U3ztM"
+    def generate_content(query,api_index):
+        API_KEY_LIST = ['AIzaSyBHNjNmTdTZOwLr0ucsiZowtLZkI2U3ztM','AIzaSyBLbePjmaxgBIOo7I0Bh6o6Bq3FWvpO83I','AIzaSyBf1f92VARfojVOJee8KYziFDEwPg--2N4','AIzaSyDp_bPEbYnbFIXaQ99e4QKFkTawWptL7q0','AIzaSyAawExf9n-tHsDBOCYA9foKFCVggGb_6lA'
+                        ,'AIzaSyD1mrEZHdZqt2bswUBKj2gBNe8wr5XVLXo','AIzaSyA21ny7hTPZCAZrQwYAoCrVqTJVbHVdBmw','AIzaSyB3ZKlIluPSdGKphLBzzC4XYuAZ55Uf9qs','AIzaSyC2zLA-jePiNqxNKx_gsBtkVtajm8PqWCM','AIzaSyDQCan0QQ7dWZpJzXPvmnQcc0vK3jAuzNQ']
+        
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY_LIST[api_index]
         data = {
             "contents": [{
                 "parts": [{
@@ -68,20 +71,9 @@ def updateFaissDB():
             else:
                 print("Request failed with status code:", response.status_code)
                 print("Response:", response.text)
-                if retries > 0:
-                    print(f"Retrying in {delay} seconds...")
-                    time.sleep(delay)
-                    return generate_content(query, retries - 1, delay)
-                else:
-                    return ''
-        except Exception as e:
-            print("Error occurred:", str(e))
-            if retries > 0:
-                print(f"Retrying in {delay} seconds...")
-                time.sleep(delay)
-                return generate_content(query, retries - 1, delay)
-            else:
                 return ''
+        except Exception as e:
+            return ''
                 
           
     events_df = sql_to_dataframe('events_event')
@@ -119,10 +111,11 @@ def updateFaissDB():
         DECRIPTION IS {text_content_description}
 
         """
-        generated_description_gemini = generate_content(prompt_gemini)
+        generated_description_gemini = generate_content(prompt_gemini,api_index=int(str(i)[-1]))
 
         
         if generated_description_gemini == '' :
+            print(generated_description_gemini)
             generated_description_gemini = re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags'])
             
         value = subcategory_df.loc[subcategory_df['id'] == event_loc["subCategory_id"]]
@@ -173,9 +166,10 @@ def updateFaissDB():
         DECRIPTION IS {text_content_description}
 
         """
-        generated_description_gemini = generate_content(prompt_gemini)
+        generated_description_gemini = generate_content(prompt_gemini,api_index=int(str(i)[-1]))
         
         if generated_description_gemini == '':
+            print(generated_description_gemini)
             generated_description_gemini = re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags'])
             
         value = subcategory_df.loc[subcategory_df['id'] == workshop_loc["subCategory_id"]]
