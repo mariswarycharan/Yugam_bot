@@ -137,6 +137,7 @@ def updateFaissDB():
         full_text_events +=  "events tags are " + re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags']) + '\n'
         
     
+    
     full_text_workshops = ''
     
     for i in tqdm(range(len(workshops_df))):
@@ -189,9 +190,13 @@ def updateFaissDB():
         full_text_workshops +=  "ENTRY FEES OR COST FOR THIS  WORKSHOP : " + str(workshop_loc['common_paymentAmount']) + ' and '
         full_text_workshops +=  "workshops tags are " + re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags']) + '\n'
         
-    all_text_content_faiss_db = full_text_events + '\n' + full_text_workshops
+        
+    with open("D:\Yugam_bot\source_data\Yugam24.txt",'r',encoding="utf-8") as file:
+        yugam=file.read()
+            
+    all_text_content_faiss_db = full_text_events + '\n' + full_text_workshops + '\n' + yugam
     
-    with open('yugamAI/ai_database/eventsWorkshops.txt', 'w', encoding='utf-8') as file:
+    with open('D:\Yugam_bot\source_data\eventsWorkshops.txt', 'w', encoding='utf-8') as file:
         file.write(all_text_content_faiss_db)
     
     text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=1, chunk_overlap=1)
