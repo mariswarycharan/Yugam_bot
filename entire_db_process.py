@@ -46,7 +46,7 @@ def updateFaissDB():
 
 
     def gemini_request(query,api_index):
-        API_KEY_LIST = ['AIzaSyBHNjNmTdTZOwLr0ucsiZowtLZkI2U3ztM','AIzaSyBLbePjmaxgBIOo7I0Bh6o6Bq3FWvpO83I','AIzaSyBf1f92VARfojVOJee8KYziFDEwPg--2N4','AIzaSyDp_bPEbYnbFIXaQ99e4QKFkTawWptL7q0','AIzaSyAawExf9n-tHsDBOCYA9foKFCVggGb_6lA'
+        API_KEY_LIST = ['AIzaSyBHNjNmTdTZOwLr0ucsiZowtLZkI2U3ztM','AIzaSyBLbePjmaxgBIOo7I0Bh6o6Bq3FWvpO83I','AIzaSyBf1f92VARfojVOJee8KYziFDEwPg--2N4','AIzaSyDp_bPEbYnbFIXaQ99e4QKFkTawWptL7q0','AIzaSyBI5H2n6aKP7iYYn2PzSj5LSQ7DJHBxKJQ'
                         ,'AIzaSyD1mrEZHdZqt2bswUBKj2gBNe8wr5XVLXo','AIzaSyA21ny7hTPZCAZrQwYAoCrVqTJVbHVdBmw','AIzaSyB3ZKlIluPSdGKphLBzzC4XYuAZ55Uf9qs','AIzaSyC2zLA-jePiNqxNKx_gsBtkVtajm8PqWCM','AIzaSyDQCan0QQ7dWZpJzXPvmnQcc0vK3jAuzNQ']
         
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY_LIST[api_index]
@@ -69,7 +69,7 @@ def updateFaissDB():
                 else:
                     return ''
             else:
-                print("Request failed with status code:", response.status_code)
+                print("Request failed with status code:", response.status_code , "api_index ==> ",api_index)
                 print("Response:", response.text)
                 return ''
         except Exception as e:
@@ -124,7 +124,7 @@ def updateFaissDB():
         Category = value1.iloc[0]['name']
         
         
-        title_name = '" ' + '#' + str(event_loc['id']) + " " + event_loc['title'].upper()+ ' "'
+        title_name = '" ' + '#YUG-E-' + str(event_loc['id']) + " " + event_loc['title'].upper()+ ' "'
         full_text_events +=  "TITLE of the event is " + title_name + " and "
         full_text_events +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n','')  + "\n"
         full_text_events +=  "Anticipate attendee for " + title_name + "event have " + generated_description_gemini.replace('\n','').replace('*','')  + " and "
@@ -136,7 +136,6 @@ def updateFaissDB():
         full_text_events +=  "ENTRY FEES OR COST FOR THIS EVENT : " +  str(event_loc['common_paymentAmount']) + ' and '
         full_text_events +=  "events tags are " + re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags']) + '\n'
         
-    
     
     full_text_workshops = ''
     
@@ -179,7 +178,7 @@ def updateFaissDB():
         Category = value1.iloc[0]['name']
         
         
-        title_name = '" ' + '#' + str(workshop_loc['id']) + " " + workshop_loc['title'].upper()+ ' "'
+        title_name = '" ' + '#YUG-W-' + str(workshop_loc['id']) + " " + workshop_loc['title'].upper()+ ' "'
         full_text_workshops +=  "TITLE of the workshop is " + title_name + " and "
         full_text_workshops +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n','')  + "\n"
         full_text_workshops +=  "Anticipate attendee for " + title_name + "workshop have " + generated_description_gemini.replace('\n','').replace('*','')  + " and "
@@ -191,15 +190,15 @@ def updateFaissDB():
         full_text_workshops +=  "workshops tags are " + re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags']) + '\n'
         
         
-    with open("D:\Yugam_bot\source_data\Yugam24.txt",'r',encoding="utf-8") as file:
+    with open("source_data\Yugam24.txt",'r',encoding="utf-8") as file:
         yugam=file.read()
             
     all_text_content_faiss_db = full_text_events + '\n' + full_text_workshops + '\n' + yugam
     
-    with open('D:\Yugam_bot\source_data\eventsWorkshops.txt', 'w', encoding='utf-8') as file:
+    with open('source_data\eventsWorkshops.txt', 'w', encoding='utf-8') as file:
         file.write(all_text_content_faiss_db)
     
-    text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=1, chunk_overlap=1)
+    text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=200, chunk_overlap=1)
     chunks = text_splitter.split_text(all_text_content_faiss_db)
 
     print('No of documents (chunks) ==> ',len(chunks))
