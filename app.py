@@ -1,6 +1,9 @@
 import time 
 from flask_cors import CORS
 from langchain_together import Together
+from langchain_community.document_transformers import (
+    LongContextReorder,
+)
 from langchain.prompts import PromptTemplate
 from langchain.chains.question_answering import load_qa_chain
 from langchain_community.vectorstores import FAISS
@@ -17,15 +20,15 @@ CORS(app)
 def get_conversational_chain():
 
     prompt_template = """<<SYS>>
-    You are a recommender bot and your job is to recommend best event and workshops in simple terms to the users
     Your response shouldn't include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.
-    Yugam24, the Techno-Cultural-Sports Fest of Kumaraguru Institutions, is gearing up for its 11th edition! It offers a diverse range of activities including technical competitions, cultural showcases, literary events, pro shows, hackathons, conclaves, presentations, and socially responsible activities.
+    Yugam24, the Techno-Cultural-Sports Fest of Kumaraguru Institutions, is gearing up for its 12th edition! It offers a diverse range of activities including technical competitions, cultural showcases, literary events, pro shows, hackathons, conclaves, presentations, and socially responsible activities.
     You need to assist the users for yugam and recommend the best events and workshops ( give only the exact accurate title of events and workshops in given document ) according to their interest and behaviour with respect to their query
     you must also act like general conversation chatbot also and you want to answer to normal conversation chat question only in 20 words and do not generate extra content and do not suggest or show or recommend events and workshop. Don't give Note in response
     Your name is Yuva
+    Yuva is developed or made by iQuberz (LOVE @ AI TEAM) iQube or iqube ==> INNOVATE INCUBATE INCORPORATE
     <</SYS>>
     
-    You must follow these guidelines:
+    Yuva must follow these guidelines:
     [INST] Respond should be Structure and Point by point [/INST]
     [INST] Always must Respond very shortly and simple [/INST] 
     [INST] If user ask about events or workshops ,You must recommend all the events or workshops  which are related to user query  and one line description about the events or workshops. don't generate any extra context. response must contain only related to events or workshops. [/INST]
@@ -40,26 +43,28 @@ def get_conversational_chain():
 
     Answer the question as brief as from the provided below context and question, make sure to provide all the details.
     Use the following pieces of context to answer with respect to the strictly question only at the end.
+    you also act like a general conversation chatbot offering greetings,Open-Ended Questions,conversation chat
+    Answer should be motivate,impress,manipulate the below user 
+    Answer must be very shortly and simple
     
     Context: {context}
     
-    If the answer to below question is not provided within the preceding above context, and if incorrect information is not to be given, and if assumptions are not to be made, then please provide the appropriate response
-    If below question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to below question, please don't share false information.
-    Answer should be motivate,impress,manipulate the below user 
-    Don't provide any sensitive data include registration count, seat count to the user and don't respond apart from the given above context.
-    
     You also behave as personalised chatbot to below user karthi
     karthi personal information : User name is karthi and karthi is studying in Information Technology department .karthi is 1st year student.This is keep this it in mind
-    
+            
     Question: {question} 
     
-    Helpful Answer:
+    If you can not find answer to above Question in provided above context then you should not give incorrect information to user and at any cost do not assume or predict the answer. please provide the appropriate response 
+    If the question doesn't make sense or isn't factually coherent then instead of providing incorrect information.can answer like please provide more details it's not my role or job , my role is to recommend the best events and workshops in simple terms to users.don't know the answer to above question, won't share false information.
+    Don't provide any sensitive information include registration count, seat count to the user and don't respond apart from the given above context.
+    
+    Helpfull Answer:
     """
     
     model = Together(
     model="meta-llama/Llama-2-7b-chat-hf",
-    temperature=0.3,
-    max_tokens=512,
+    temperature=0,
+    max_tokens=512, 
     top_k=1,
     together_api_key="40763e1166656125a452ff661e6218ac3d709fd64b458f17f94984acc8e748dc"
     )
@@ -72,10 +77,9 @@ def get_conversational_chain():
 
 def user_input():
     
-    # embeddings = SentenceTransformerEmbeddings(model_name="llmware/industry-bert-insurance-v0.1")
+
     embeddings = HuggingFaceBgeEmbeddings(
     model_name="BAAI/bge-base-en-v1.5", encode_kwargs={"normalize_embeddings": True},)
-    # query_instruction = """Generate a representation for this applicant's profile that can be used to match them with relevant events and workshops based on their interests and behavior. Additionally, you must also act like a general conversation chatbot and respond to queries not related to the uploaded content in 20 words, without suggesting events, workshops, or notes.""")
     new_db = FAISS.load_local("yugamAI/ai_database/faiss", embeddings)
     chain = get_conversational_chain()
     return chain,new_db
@@ -90,21 +94,22 @@ def index_app():
     if request.args.get('question'):
 
         question_user = request.args.get("question")
+        question_user = question_user + "?"
+        
         print("input ==> ",question_user)
 
         try:
             start_time = time.time()
 
-            docs = new_db.similarity_search_with_score(question_user)
-            s = [ i[1] for i in docs ]
-            
-            print(s)
-            
-            docs_s = [ i[0] for i in docs ]
+            docs = new_db.similarity_search(question_user)
 
-            print(docs_s)
+            reordering = LongContextReorder()
+            docs_s = reordering.transform_documents(docs)
+
+            print(docs)
+            
             response = chain(
-            {"input_documents":docs_s, "question": question_user}
+            {"input_documents":docs, "question": question_user}
             , return_only_outputs=True,
             )
             
@@ -113,7 +118,6 @@ def index_app():
             running_time = end_time - start_time
             print("Running time:", running_time, "seconds")
                         
-            
             response = response["output_text"]
 
 

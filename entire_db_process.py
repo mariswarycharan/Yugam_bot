@@ -15,7 +15,7 @@ def updateFaissDB():
 
     def sql_to_dataframe(table_name):
         conn = psycopg2.connect(
-                    database="postgres",
+                    database="yugam_mock_ai",
                     user="postgres",
                     password="nuttertools@123",
                     host="10.1.76.58",
@@ -126,8 +126,8 @@ def updateFaissDB():
         
         title_name = '" ' + '#YUG-E-' + str(event_loc['id']) + " " + event_loc['title'].upper()+ ' "'
         full_text_events +=  "TITLE of the event is " + title_name + " and "
-        full_text_events +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n','')  + "\n"
-        full_text_events +=  "Anticipate attendee for " + title_name + "event have " + generated_description_gemini.replace('\n','').replace('*','')  + " and "
+        full_text_events +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n',' ')  + "\n"
+        full_text_events +=  "Participant for " + title_name + "event have " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
         full_text_events +=  "CATEGORY is " + Category + " and "
         full_text_events +=  "SUB CATEGORY is " + subCategory + ' and '
         full_text_events +=  "URL : " + "https://yugam.in/e/" +  event_loc['event_url'] + ' and '
@@ -180,8 +180,8 @@ def updateFaissDB():
         
         title_name = '" ' + '#YUG-W-' + str(workshop_loc['id']) + " " + workshop_loc['title'].upper()+ ' "'
         full_text_workshops +=  "TITLE of the workshop is " + title_name + " and "
-        full_text_workshops +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n','')  + "\n"
-        full_text_workshops +=  "Anticipate attendee for " + title_name + "workshop have " + generated_description_gemini.replace('\n','').replace('*','')  + " and "
+        full_text_workshops +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n',' ')  + "\n"
+        full_text_workshops +=  "Participant for " + title_name + "workshop have " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
         full_text_workshops +=  "CATEGORY is " + Category + " and "
         full_text_workshops +=  "SUB CATEGORY is " + subCategory + ' and '
         full_text_workshops +=  "URL : " + "https://yugam.in/w/" +  workshop_loc['workshop_url'] + ' and '
@@ -198,7 +198,7 @@ def updateFaissDB():
     with open('source_data\eventsWorkshops.txt', 'w', encoding='utf-8') as file:
         file.write(all_text_content_faiss_db)
     
-    text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=200, chunk_overlap=1)
+    text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=100, chunk_overlap=1)
     chunks = text_splitter.split_text(all_text_content_faiss_db)
 
     print('No of documents (chunks) ==> ',len(chunks))
