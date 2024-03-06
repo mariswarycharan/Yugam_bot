@@ -1,9 +1,6 @@
 import time 
 from flask_cors import CORS
 from langchain_together import Together
-from langchain_community.document_transformers import (
-    LongContextReorder,
-)
 from langchain.prompts import PromptTemplate
 from langchain.chains.question_answering import load_qa_chain
 from langchain_community.vectorstores import FAISS
@@ -20,9 +17,9 @@ CORS(app)
 def get_conversational_chain():
 
     prompt_template = """<<SYS>>
+    You need to assist the users for yugam and recommend the best events and workshops ( give only the exact accurate title of events and workshops in given document ) according to their interest and behaviour with respect to their query
     Your response shouldn't include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.
     Yugam24, the Techno-Cultural-Sports Fest of Kumaraguru Institutions, is gearing up for its 12th edition! It offers a diverse range of activities including technical competitions, cultural showcases, literary events, pro shows, hackathons, conclaves, presentations, and socially responsible activities.
-    You need to assist the users for yugam and recommend the best events and workshops ( give only the exact accurate title of events and workshops in given document ) according to their interest and behaviour with respect to their query
     you must also act like general conversation chatbot also and you want to answer to normal conversation chat question only in 20 words and do not generate extra content and do not suggest or show or recommend events and workshop. Don't give Note in response
     Your name is Yuva
     Yuva is developed or made by iQuberz (LOVE @ AI TEAM) iQube or iqube ==> INNOVATE INCUBATE INCORPORATE
@@ -42,7 +39,7 @@ def get_conversational_chain():
 
 
     Answer the question as brief as from the provided below context and question, make sure to provide all the details.
-    Use the following pieces of context to answer with respect to the strictly question only at the end.
+    Use the following pieces of below context to answer with respect to the strictly question only at the end.
     you also act like a general conversation chatbot offering greetings,Open-Ended Questions,conversation chat
     Answer should be motivate,impress,manipulate the below user 
     Answer must be very shortly and simple
@@ -54,8 +51,8 @@ def get_conversational_chain():
             
     Question: {question} 
     
-    If you can not find answer to above Question in provided above context then you should not give incorrect information to user and at any cost do not assume or predict the answer. please provide the appropriate response 
-    If the question doesn't make sense or isn't factually coherent then instead of providing incorrect information.can answer like please provide more details it's not my role or job , my role is to recommend the best events and workshops in simple terms to users.don't know the answer to above question, won't share false information.
+    If you can not find answer to above Question in provided above context then you should not give incorrect information to user and at any cost do not assume or predict the answer. please provide the appropriate response. If you are unable to help the reviewer, let them know that help is on the way.
+    If the question doesn't make sense or isn't factually coherent then instead of providing incorrect information.can answer like let them know that please provide more details it's not my role or job , my role is to recommend the best events and workshops in simple terms to users.don't know the answer to above question, won't share false information.
     Don't provide any sensitive information include registration count, seat count to the user and don't respond apart from the given above context.
     
     Helpfull Answer:
@@ -77,7 +74,6 @@ def get_conversational_chain():
 
 def user_input():
     
-
     embeddings = HuggingFaceBgeEmbeddings(
     model_name="BAAI/bge-base-en-v1.5", encode_kwargs={"normalize_embeddings": True},)
     new_db = FAISS.load_local("yugamAI/ai_database/faiss", embeddings)
@@ -103,9 +99,6 @@ def index_app():
 
             docs = new_db.similarity_search(question_user)
 
-            reordering = LongContextReorder()
-            docs_s = reordering.transform_documents(docs)
-
             print(docs)
             
             response = chain(
@@ -119,7 +112,6 @@ def index_app():
             print("Running time:", running_time, "seconds")
                         
             response = response["output_text"]
-
 
             return response
         
