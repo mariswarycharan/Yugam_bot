@@ -113,7 +113,6 @@ def updateFaissDB():
         """
         generated_description_gemini = gemini_request(prompt_gemini,api_index=int(str(i)[-1]))
 
-        
         if generated_description_gemini == '' :
             print(generated_description_gemini)
             generated_description_gemini = re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags'])
@@ -127,13 +126,13 @@ def updateFaissDB():
         title_name = '" ' + '#YUG-E-' + str(event_loc['id']) + " " + event_loc['title'].upper()+ ' "'
         full_text_events +=  "TITLE of the event is " + title_name + " and "
         full_text_events +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n',' ')  + "\n"
-        full_text_events +=  "Participant for " + title_name + "event have " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
+        full_text_events +=  "area of interests and skills and technology and domains are required for  " + title_name + "event are  " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
         full_text_events +=  "CATEGORY is " + Category + " and "
         full_text_events +=  "SUB CATEGORY is " + subCategory + ' and '
         full_text_events +=  "URL : " + "https://yugam.in/e/" +  event_loc['event_url'] + ' and '
         full_text_events +=  "DATE : " +  str(event_loc['startTime']) + ' and '
-        full_text_events +=  "WINNING PRICE AMOUNT FOR THIS EVENT : " +  str(event_loc['price_amount']) + ' and '
-        full_text_events +=  "ENTRY FEES OR COST FOR THIS EVENT : " +  str(event_loc['common_paymentAmount']) + ' and '
+        full_text_events +=  "WINNING PRICE AMOUNT FOR " + title_name + " EVENT : " +  str(event_loc['price_amount']) + ' and '
+        full_text_events +=  "ENTRY FEES OR COST FOR " + title_name + " EVENT : " +  str(event_loc['common_paymentAmount']) + ' and '
         full_text_events +=  "events tags are " + re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags']) + '\n'
         
     
@@ -181,12 +180,12 @@ def updateFaissDB():
         title_name = '" ' + '#YUG-W-' + str(workshop_loc['id']) + " " + workshop_loc['title'].upper()+ ' "'
         full_text_workshops +=  "TITLE of the workshop is " + title_name + " and "
         full_text_workshops +=  "description of the "+ title_name +" is " + text_content_description.replace("\r\n",'').replace('\n',' ')  + "\n"
-        full_text_workshops +=  "Participant for " + title_name + "workshop have " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
+        full_text_workshops +=  "area of interests and skills and technology and domains are required for " + title_name + " workshop are " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
         full_text_workshops +=  "CATEGORY is " + Category + " and "
         full_text_workshops +=  "SUB CATEGORY is " + subCategory + ' and '
         full_text_workshops +=  "URL : " + "https://yugam.in/w/" +  workshop_loc['workshop_url'] + ' and '
         full_text_workshops +=  "DATE : " + str(workshop_loc['startTime']) + ' and '
-        full_text_workshops +=  "ENTRY FEES OR COST FOR THIS  WORKSHOP : " + str(workshop_loc['common_paymentAmount']) + ' and '
+        full_text_workshops +=  "ENTRY FEES OR COST FOR " + title_name + "  WORKSHOP : " + str(workshop_loc['common_paymentAmount']) + ' and '
         full_text_workshops +=  "workshops tags are " + re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags']) + '\n'
         
         
