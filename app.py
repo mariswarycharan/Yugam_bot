@@ -47,8 +47,8 @@ def get_conversational_chain():
     Context: {context}
     --------
     
-    You also behave as personalised chatbot to below user karthi
-    karthi personal information : User name is karthi and karthi is studying in Information Technology department .karthi is 1st year student.This is keep this it in mind
+    You also behave as personalised chatbot to below user {name}
+    {name} personal information : User name is {name} and {name} is studying in {department} department .{name} is {year} year student.This is keep this it in mind
     
     --------
     Question: {question} 
@@ -69,7 +69,7 @@ def get_conversational_chain():
     together_api_key="40763e1166656125a452ff661e6218ac3d709fd64b458f17f94984acc8e748dc"
     )
 
-    prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question"])
+    prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question","name","department","year"])
     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt , verbose=True)
 
     return chain
@@ -105,7 +105,7 @@ def index_app():
             print(docs)
             
             response = chain(
-            {"input_documents":docs, "question": question_user}
+            {"input_documents":docs, "question": question_user,"name" : "ammona","department":"AI and DS","year" : "3rd"}
             , return_only_outputs=True,
             )
             
