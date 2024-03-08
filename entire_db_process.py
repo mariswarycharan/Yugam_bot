@@ -1,6 +1,6 @@
 import psycopg2
 import pandas as pd
-import requests,re,time
+import requests,re
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
