@@ -129,10 +129,10 @@ def updateFaissDB():
         full_text_events +=  "area of interests and skills and technology and domains are required for  " + title_name + "event are  " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
         full_text_events +=  "CATEGORY is " + Category + " and "
         full_text_events +=  "SUB CATEGORY is " + subCategory + ' and '
-        full_text_events +=  "URL : " + "https://yugam.in/e/" +  event_loc['event_url'] + ' and '
-        full_text_events +=  "DATE : " +  str(event_loc['startTime']) + ' and '
-        full_text_events +=  "WINNING PRICE AMOUNT FOR " + title_name + " EVENT : " +  str(event_loc['price_amount']) + ' and '
-        full_text_events +=  "ENTRY FEES OR COST FOR " + title_name + " EVENT : " +  str(event_loc['common_paymentAmount']) + ' and '
+        full_text_events +=  "register link or URL for " + title_name + " event is " + "https://yugam.in/e/" +  event_loc['event_url'] + ' and '
+        full_text_events +=  title_name + " event happening on " +  str(event_loc['startTime']) + ' and '
+        full_text_events +=  "WINNING PRICE AMOUNT FOR " + title_name + " event is " +  str(event_loc['price_amount']) + ' and '
+        full_text_events +=  "ENTRY FEES OR COST FOR " + title_name + " event is " +  str(event_loc['common_paymentAmount']) + ' and '
         full_text_events +=  "events tags are " + re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags']) + '\n'
         
     
@@ -183,9 +183,9 @@ def updateFaissDB():
         full_text_workshops +=  "area of interests and skills and technology and domains are required for " + title_name + " workshop are " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
         full_text_workshops +=  "CATEGORY is " + Category + " and "
         full_text_workshops +=  "SUB CATEGORY is " + subCategory + ' and '
-        full_text_workshops +=  "URL : " + "https://yugam.in/w/" +  workshop_loc['workshop_url'] + ' and '
-        full_text_workshops +=  "DATE : " + str(workshop_loc['startTime']) + ' and '
-        full_text_workshops +=  "ENTRY FEES OR COST FOR " + title_name + "  WORKSHOP : " + str(workshop_loc['common_paymentAmount']) + ' and '
+        full_text_workshops +=  "register link or url for " + title_name + " workshop is " + "https://yugam.in/w/" +  workshop_loc['workshop_url'] + ' and '
+        full_text_workshops +=  title_name + " event happening on " + str(workshop_loc['startTime']) + ' and '
+        full_text_workshops +=  "ENTRY FEES OR COST FOR " + title_name + "  workshop is " + str(workshop_loc['common_paymentAmount']) + ' and '
         full_text_workshops +=  "workshops tags are " + re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags']) + '\n'
         
         
@@ -207,7 +207,7 @@ def updateFaissDB():
     
     print('vector_store started.....')
     vector_store = FAISS.from_texts(chunks, embedding=embeddings)
-    vector_store.save_local("yugamAI/ai_database/faiss")
+    vector_store.save_local("yugamAI/ai_database/faiss_1")
     print('vector_store ended.....')
 
     
