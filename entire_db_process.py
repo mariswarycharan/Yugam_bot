@@ -15,7 +15,7 @@ def updateFaissDB():
 
     def sql_to_dataframe(table_name):
         conn = psycopg2.connect(
-                    database="yugam_mock_ai",
+                    database="postgres",
                     user="postgres",
                     password="nuttertools@123",
                     host="10.1.76.58",
@@ -195,12 +195,12 @@ def updateFaissDB():
         full_text_workshops +=  "workshops tags are " + re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags']) + '\n'
         
     
-    with open("source_data\Yugam24.txt",'r',encoding="utf-8") as file:
+    with open("data\Yugam24.txt",'r',encoding="utf-8") as file:
         yugam=file.read()
             
     all_text_content_faiss_db =  yugam + '\n' + full_text_events + '\n' + full_text_workshops
     
-    with open('source_data\eventsWorkshops.txt', 'w', encoding='utf-8') as file:
+    with open('data\eventsWorkshops.txt', 'w', encoding='utf-8') as file:
         file.write(all_text_content_faiss_db)
     
     text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=100, chunk_overlap=1)
@@ -213,7 +213,7 @@ def updateFaissDB():
     
     print('vector_store started.....')
     vector_store = FAISS.from_texts(chunks, embedding=embeddings)
-    vector_store.save_local("yugamAI/ai_database/faiss_2")
+    vector_store.save_local("source_data/faiss_1")
     print('vector_store ended.....')
 
     
