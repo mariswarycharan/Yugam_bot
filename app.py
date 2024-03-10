@@ -58,11 +58,10 @@ def get_conversational_chain():
     today date is not mentioned in given context
     yugam budget or money or amount is not mentioned in given context
     Yugam is happening from 2024-03-21 to 2024-03-23 
-    Rupees 300 for registration or entry or general fees for yugam
 
     Question: {question} 
 
-    Don't know the answer to below question, Strictly won't share false information.
+    Don't know the answer to above question, Strictly won't share false information.
     Answer must be very shortly and simple and meaningful and truthful
 
 
@@ -83,7 +82,6 @@ def get_conversational_chain():
     today date is not mentioned in given context
     yugam budget or money or amount is not mentioned in given context
     Yugam is happening from 2024-03-21 to 2024-03-23 
-    Rupees 300 for registration or entry or general fees for yugam
 
     Question: {question} 
     
@@ -109,7 +107,7 @@ def user_input():
     
     embeddings = HuggingFaceBgeEmbeddings(
     model_name="BAAI/bge-base-en-v1.5", encode_kwargs={"normalize_embeddings": True},)
-    new_db = FAISS.load_local("yugamAI/ai_database/faiss_2", embeddings)
+    new_db = FAISS.load_local("source_data/faiss_1", embeddings)
     chain = get_conversational_chain()
     return chain,new_db
 
@@ -152,11 +150,10 @@ def index_app():
         Don't provide any sensitive information include registration count, seat count to the user and don't respond apart from the given above context.
         you also act like a general conversation chatbot offering greetings,Open-Ended Questions,conversation chat
               
-
         """
         
-        prompt_template_2 = """Don't know the answer to below question, Strictly won't share false information.
-    Answer must be very shortly and simple and meaningful and truthful
+        prompt_template_2 = """Don't know the answer to above question, Strictly won't share false information.
+    Answer must be very shortly and simple and meaningful
 
 
     Helpfull Answer:
