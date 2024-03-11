@@ -15,7 +15,7 @@ def updateFaissDB():
 
     def sql_to_dataframe(table_name):
         conn = psycopg2.connect(
-                    database="postgres",
+                    database="yugam_mock_ai",
                     user="postgres",
                     password="nuttertools@123",
                     host="10.1.76.58",
@@ -79,18 +79,14 @@ def updateFaissDB():
     events_df = sql_to_dataframe('events_event')
     categories_df = sql_to_dataframe('events_category')
     subCategories_df = sql_to_dataframe('events_subcategory')
-    workshops_df = sql_to_dataframe('workshop_workshop')    
-    department_df =  sql_to_dataframe('userdashboard_department')   
-    
-    
+    workshops_df = sql_to_dataframe('workshop_workshop')       
+        
     full_text_events = ''
     
     for i in tqdm(range(len(events_df))):
         
         event_loc = events_df.loc[i]
         html_code = event_loc["description"]
-        
-        department = department_df.loc[department_df['id'] == event_loc['department_id']]['department_name'].values[0]
         
         # Parse HTML using BeautifulSoup
         soup = BeautifulSoup(html_code, 'html.parser')
@@ -134,7 +130,7 @@ def updateFaissDB():
         full_text_events +=  "CATEGORY is " + Category + " and "
         full_text_events +=  "SUB CATEGORY is " + subCategory + ' and '
         full_text_events +=  "register link or URL for " + title_name + " event is " + "https://yugam.in/e/" +  event_loc['event_url'] + ' and '
-        full_text_events +=  title_name + " event happening on " +  str(event_loc['startTime']) + " organised or conducted by " + department + ' department and '
+        full_text_events +=  title_name + " event happening on " +  str(event_loc['startTime']) + ' and '
         full_text_events +=  "WINNING PRICE AMOUNT FOR " + title_name + " event is " +  str(event_loc['price_amount']) + ' and '
         full_text_events +=  "ENTRY FEES OR COST FOR " + title_name + " event is " +  str(event_loc['common_paymentAmount']) + ' and '
         full_text_events +=  "events tags are " + re.sub(r'["\[,\]\\]', ' ', event_loc['event_tags']) + '\n'
@@ -146,8 +142,6 @@ def updateFaissDB():
         
         workshop_loc = workshops_df.loc[i]
         html_code = workshop_loc["description"]
-        
-        department = department_df.loc[department_df['id'] == workshop_loc['department_id']]['department_name'].values[0]
         
         # Parse HTML using BeautifulSoup
         soup = BeautifulSoup(html_code, 'html.parser')
@@ -189,18 +183,18 @@ def updateFaissDB():
         full_text_workshops +=  "area of interests and skills and technology and domains are required for " + title_name + " workshop are " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
         full_text_workshops +=  "CATEGORY is " + Category + " and "
         full_text_workshops +=  "SUB CATEGORY is " + subCategory + ' and '
-        full_text_workshops +=  "registration link or url for " + title_name + " workshop is " + "https://yugam.in/w/" +  workshop_loc['workshop_url'] + ' and '
-        full_text_workshops +=  title_name + " event happening on " + str(workshop_loc['startTime']) + " organised or conducted by " + department + ' department and '
-        full_text_workshops +=  "ENTRY FEES OR COST FOR " + title_name + "  workshop is " + str(workshop_loc['common_paymentAmount']) + 'department and '
+        full_text_workshops +=  "register link or url for " + title_name + " workshop is " + "https://yugam.in/w/" +  workshop_loc['workshop_url'] + ' and '
+        full_text_workshops +=  title_name + " event happening on " + str(workshop_loc['startTime']) + ' and '
+        full_text_workshops +=  "ENTRY FEES OR COST FOR " + title_name + "  workshop is " + str(workshop_loc['common_paymentAmount']) + ' and '
         full_text_workshops +=  "workshops tags are " + re.sub(r'["\[,\]\\]', ' ', workshop_loc['workshop_tags']) + '\n'
         
-    
-    with open("data\Yugam24.txt",'r',encoding="utf-8") as file:
+        
+    with open("source_data\Yugam24.txt",'r',encoding="utf-8") as file:
         yugam=file.read()
             
-    all_text_content_faiss_db =  yugam + '\n' + full_text_events + '\n' + full_text_workshops
+    all_text_content_faiss_db = full_text_events + '\n' + full_text_workshops + '\n' + yugam
     
-    with open('data\eventsWorkshops.txt', 'w', encoding='utf-8') as file:
+    with open('source_data\eventsWorkshops.txt', 'w', encoding='utf-8') as file:
         file.write(all_text_content_faiss_db)
     
     text_splitter = RecursiveCharacterTextSplitter(separators=['\n'],chunk_size=100, chunk_overlap=1)
@@ -213,7 +207,7 @@ def updateFaissDB():
     
     print('vector_store started.....')
     vector_store = FAISS.from_texts(chunks, embedding=embeddings)
-    vector_store.save_local("source_data/faiss_1")
+    vector_store.save_local("yugamAI/ai_database/faiss_1")
     print('vector_store ended.....')
 
     
