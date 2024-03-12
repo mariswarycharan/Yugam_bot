@@ -110,7 +110,7 @@ def index_app():
         print("input ==> ",question_user)
 
         try:
-            question_user = question_user + "?"
+            question_user = question_user + " ?"
             start_time = time.time()
 
             docs = new_db.similarity_search_with_score(question_user)
