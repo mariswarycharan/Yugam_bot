@@ -37,6 +37,7 @@ Yugam is happening from 2024-03-14 to 2024-03-23
 
 Question: {question}
 
+
 {prompt_template_2}
     """
 
@@ -108,8 +109,7 @@ Don't provide any sensitive information include registration count, seat count t
 you also act like a general conversation chatbot offering greetings,Open-Ended Questions,conversation chat 
 Strictly If user ask question about any events or workshops in yugam ,You must recommend best top 4 events or workshops with respect to below context and question
     """
-        prompt_template_2  = """
-Don't know the answer to above question, Strictly should not share false information.
+        prompt_template_2  = """Don't know the answer to above question, Strictly should not share false information.
 answer must be very shortly and sweet and simple and meaningful and truthful
 
 Helpfull Answer:
