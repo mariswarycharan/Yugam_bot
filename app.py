@@ -16,10 +16,6 @@ CORS(app)
 
 def get_conversational_chain():
 
-
- 
- 
- 
     prompt_template = """{prompt_template_1}
 --------
 Answer the question as brief as from the provided below context and question, make sure to provide all the details.
@@ -40,7 +36,6 @@ Question: {question}
 
 {prompt_template_2}
     """
-
     
     model = Together(
     model="meta-llama/Llama-2-7b-chat-hf",
@@ -55,7 +50,6 @@ Question: {question}
 
     return chain
 
-
 def user_input():
     
     embeddings = HuggingFaceBgeEmbeddings(
@@ -66,9 +60,6 @@ proshows in yugam are TITLE IS "#YUG-P-3 LAYAANUBHAVA" , A mesmerizing showcase 
 There are three proshows are happening in yugam . proshows are " #YUG-P-3 LAYAANUBHAVA " , " #YUG-P-1 MASALA COFFEE BAND " , " #YUG-P-2 SEAN ROLDAN CONCERT "
 """])
 
-
-                      
-    # new_db.save_local("source_data/faiss_2")
     chain = get_conversational_chain()
     return chain,new_db
 
