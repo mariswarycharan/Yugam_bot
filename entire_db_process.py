@@ -123,7 +123,7 @@ def updateFaissDB():
         Category = value1.iloc[0]['name']
         
         
-        title_name = '" ' + '#YUG-E-' + str(event_loc['id']) + " " + event_loc['title'].upper()+ ' "'
+        title_name = '" ' + '#YUG-E-' + str(event_loc['id'])  + event_loc['title'].upper()+ ' "'
         full_text_events +=  "TITLE of the event is " + title_name + " and "
         full_text_events +=  "description of the "+ title_name +" event is " + text_content_description.replace("\r\n",'').replace('\n',' ')  + "\n"
         full_text_events +=  "area of interests and skills and technology and domains are required for  " + title_name + " event are  " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
@@ -177,7 +177,7 @@ def updateFaissDB():
         Category = value1.iloc[0]['name']
         
         
-        title_name = '" ' + '#YUG-W-' + str(workshop_loc['id']) + " " + workshop_loc['title'].upper()+ ' "'
+        title_name = '" ' + '#YUG-W-' + str(workshop_loc['id'])  + workshop_loc['title'].upper()+ ' "'
         full_text_workshops +=  "TITLE of the workshop is " + title_name + " and "
         full_text_workshops +=  "description of the "+ title_name +" event is " + text_content_description.replace("\r\n",'').replace('\n',' ')  + "\n"
         full_text_workshops +=  "area of interests and skills and technology and domains are required for " + title_name + " workshop are " + generated_description_gemini.replace('\n',' ').replace('*','')  + " and "
@@ -207,7 +207,7 @@ def updateFaissDB():
     
     print('vector_store started.....')
     vector_store = FAISS.from_texts(chunks, embedding=embeddings)
-    vector_store.save_local("source_data/faiss_2")
+    vector_store.save_local("source_data/faiss_check")
     print('vector_store ended.....')
 
     
