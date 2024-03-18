@@ -17,6 +17,7 @@ CORS(app)
 def get_conversational_chain():
 
     prompt_template = """{prompt_template_1}
+
 --------
 Answer the question as brief as from the provided below context and question, make sure to provide all the details.
 Use the following pieces of below context to answer with respect to the strictly question only at the end.
@@ -24,17 +25,14 @@ Context: {context}
 --------
 
 You also behave as general conversational chatbot to below user {name}
-{name} personal information are user name is {name}. {name} am studying in {department} as a {year} student .This is keep this it in mind
-you should motivate,impress,manipulate,recommend the user
-today date is not mentioned in given context
-yugam budget or money or amount is not mentioned in given context
-Yugam is happening from 2024-03-14 to 2024-03-23 
+{name} personal information are user name is {name}. {name} is studying in {department} as a {year} student .This is keep this it in mind
+{prompt_template_2}
 
 
 Question: {question}
 
 
-{prompt_template_2}
+{prompt_template_3}
     """
     
     model = Together(
@@ -45,7 +43,7 @@ Question: {question}
     together_api_key="4babcc285dedee7ef436785e198b25b3f14468751726af370136155590f33ba6"
     )
 
-    prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question","name","department","year", "prompt_template_1","prompt_template_2"])
+    prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question","name","department","year", "prompt_template_1","prompt_template_2","prompt_template_3"])
     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt , verbose=True)
 
     return chain
@@ -84,7 +82,6 @@ def index_app():
     
 [INST] Respond should be Structure and Point by point [/INST]
 [INST] Always must Respond very shortly and simple [/INST] 
-[INST] Don't give note in response at last [/INST]
 [INST] You should only discuss the events or workshops and content related to Yugam. Let's think through this carefully,step by step. Don't talk anything which are unrelated to given document. Never give your response other than below context.[/INST]
 [INST] you should use emojis to make conversations more engaging and funny [/INST]
 [INST] response must be with only few generic lines if asked out of context then revert them to yugam topic [/INST]
@@ -95,16 +92,21 @@ def index_app():
 
 
 If the question doesn't make sense, rather than providing incorrect information, respond by asking for clarification, indicating that you're unable to assist without further details. My role is solely to recommend the best events and workshops, and engage in general conversational chatbot interactions with users, using simple language.
-If you can not find answer for the above Question in provided above context then also you shouldn't give false information to user striclty do not assume or predict any answer. please provide the appropriate response. If you are unable to help the user, let them know that help is on the way.
-Don't provide any sensitive information include registration count, seat count to the user and don't respond apart from the given above context.
+If you can not find answer for the below Question in provided below context then also you shouldn't give false information to user striclty do not assume or predict any answer. please provide the appropriate response. If you are unable to help the user, let them know that help is on the way.
+Don't provide any sensitive information include registration count, seat count to the user and don't respond apart from the given below context.
 you also act like a general conversation chatbot offering greetings,Open-Ended Questions,conversation chat 
-Strictly If user ask question about any events or workshops in yugam ,You must recommend best top 4 events or workshops with respect to below context and question
-    """
-        prompt_template_2  = """Don't know the answer to above question, Strictly should not share false information.
+Strictly If user ask question about any events or workshops in yugam , You must recommend best top 4 events or workshops with respect to below context and question"""
+
+        prompt_template_2 = """today date is not mentioned in given context
+yugam budget or money or amount is not mentioned in given context
+Yugam is happening from 2024-03-14 to 2024-03-23
+you should motivate,impress,manipulate,recommend the user"""
+
+        prompt_template_3  = """Don't know the answer to above question, Strictly should not share false information.
 answer must be very shortly and sweet and simple and meaningful and truthful
 
-Helpfull Answer:
-    """
+Helpfull Answer:"""
+    
 
         question_user = request.args.get("question")
         
@@ -120,7 +122,7 @@ Helpfull Answer:
             docs = [ i[0] for i in docs if i[1] < 1]
             
             response = chain(
-            {"input_documents": docs, "question": question_user,"name" : "Charan A A","department":"Computer Science and Engineering","year" : "4th year","prompt_template_1" :prompt_template_1 ,"prompt_template_2" : prompt_template_2}
+            {"input_documents": docs, "question": question_user,"name" : "Charan","department":"Computer Science and Engineering","year" : "4th year","prompt_template_1" :prompt_template_1 ,"prompt_template_2" : prompt_template_2,"prompt_template_3" : prompt_template_3}
             , return_only_outputs=True,
             )
             
@@ -131,12 +133,13 @@ Helpfull Answer:
             
             print(score,len(docs))
             
-            response = response["output_text"]
-
+            response = response["output_text"].strip()
+            
+            print(response)
             return response
         
         except Exception as e:
-            return f'Hi there 👋 How can I help you today?'
+            return 'There is a error in generating response'
            
     else:
         return 'Error in api request' 
