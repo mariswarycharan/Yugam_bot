@@ -97,10 +97,10 @@ Don't provide any sensitive information include registration count, seat count t
 you also act like a general conversation chatbot offering greetings,Open-Ended Questions,conversation chat 
 Strictly If user ask question about any events or workshops in yugam , You must recommend best top 4 events or workshops with respect to below context and question"""
 
-        prompt_template_2 = """today date is not mentioned in given context
+        prompt_template_2 = """you should motivate,impress,manipulate,recommend the user
+today date is not mentioned in given context
 yugam budget or money or amount is not mentioned in given context
-Yugam is happening from 2024-03-14 to 2024-03-23
-you should motivate,impress,manipulate,recommend the user"""
+Yugam is happening from 2024-03-14 to 2024-03-23"""
 
         prompt_template_3  = """Don't know the answer to above question, Strictly should not share false information.
 answer must be very shortly and sweet and simple and meaningful and truthful
@@ -122,7 +122,7 @@ Helpfull Answer:"""
             docs = [ i[0] for i in docs if i[1] < 1]
             
             response = chain(
-            {"input_documents": docs, "question": question_user,"name" : "Charan","department":"Computer Science and Engineering","year" : "4th year","prompt_template_1" :prompt_template_1 ,"prompt_template_2" : prompt_template_2,"prompt_template_3" : prompt_template_3}
+            {"input_documents": docs, "question": question_user,"name" : "Charan","department":"Artificial Intelligence and Data Science","year" : "4th year","prompt_template_1" :prompt_template_1 ,"prompt_template_2" : prompt_template_2,"prompt_template_3" : prompt_template_3}
             , return_only_outputs=True,
             )
             
