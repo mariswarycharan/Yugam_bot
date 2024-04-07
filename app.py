@@ -53,7 +53,7 @@ def user_input():
     # embeddings = HuggingFaceBgeEmbeddings(
     # model_name="BAAI/bge-base-en-v1.5", encode_kwargs={"normalize_embeddings": True})
     embeddings = TogetherEmbeddings(model="togethercomputer/m2-bert-80M-32k-retrieval",together_api_key="4babcc285dedee7ef436785e198b25b3f14468751726af370136155590f33ba6")
-    new_db = FAISS.load_local("source_data/faiss_2", embeddings)
+    new_db = FAISS.load_local("data/faiss_2", embeddings)
     new_db.add_texts(["""           
 proshows in yugam are TITLE IS "#YUG-P-3 LAYAANUBHAVA" , A mesmerizing showcase presented by Team Anartana. Immerse yourself in the rhythmic reverie and witness the seamless blend of dance forms with Simran Sivakumar and her team, Anartana. Explore the elegance of tradition and the innovation of contemporary expression in this captivating performance. Mark your calendars on March 20th and be part of a cultural journey that transcends boundaries. LAYAANUBHAVA - Where dance becomes poetry, and rhythms resonate with the soul.
 There are three proshows are happening in yugam . proshows are " #YUG-P-3 LAYAANUBHAVA " , " #YUG-P-1 MASALA COFFEE BAND " , " #YUG-P-2 SEAN ROLDAN CONCERT "
